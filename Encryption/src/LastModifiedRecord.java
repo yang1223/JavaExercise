@@ -42,13 +42,16 @@ public class LastModifiedRecord {
     }
 
     public void write() throws IOException {
-        FileWriter localFw = new FileWriter(localTsv);
+        new File(encryption + "/.local").mkdirs();
+        new File(encryption + "/.share").mkdirs();
+
+        BufferedWriter localFw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(localTsv), "UTF-8"));
         for(Map.Entry entry:local.entrySet()){
             localFw.write(entry.getKey() + "\t" + entry.getValue() + System.getProperty("line.separator"));
         }
         localFw.close();
-        FileWriter shareFw = new FileWriter(shareTsv);
-        for(Map.Entry entry:local.entrySet()){
+        BufferedWriter shareFw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(shareTsv), "UTF-8"));
+        for(Map.Entry entry:share.entrySet()){
             shareFw.write(entry.getKey() + "\t" + entry.getValue() + System.getProperty("line.separator"));
         }
         shareFw.close();
@@ -56,15 +59,19 @@ public class LastModifiedRecord {
 
     public void encryptDelete() {
         for(String filePath:localToDelete){
+            local.remove(filePath);
             File file = new File(Util.getEncryptionFilePath(filePath));
             if (file.delete()) System.out.println("delete\t\t" + file.getPath());
+            share.remove(file.getPath());
         }
     }
 
     public void decryptDelete() {
         for(String filePath:shareToDelete){
+            share.remove(filePath);
             File file = new File(Util.getOriginalFilePath(filePath));
             if (file.delete()) System.out.println("delete\t\t" + file.getPath());
+            local.remove(file.getPath());
         }
     }
 

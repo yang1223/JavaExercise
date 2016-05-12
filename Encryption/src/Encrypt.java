@@ -3,7 +3,7 @@ import java.io.*;
 /**
  * Created by Yang, Chi-Chang on 2016/5/9.
  */
-public class Encrypt {
+public class encrypt {
 
     static String original = Util.original;
 
@@ -11,9 +11,9 @@ public class Encrypt {
         try {
             LastModifiedRecord record = new LastModifiedRecord();
             File file = new File(original);
-            encrypt(file, record);
-            record.write();
+            encryptFiles(file, record);
             record.encryptDelete();
+            record.write();
         } catch (IOException e){
             System.out.println("===== ERROR =====");
             System.out.println(e.getMessage());
@@ -22,14 +22,14 @@ public class Encrypt {
         }
     }
 
-    public static void encrypt(File rootFile , LastModifiedRecord record) throws IOException {
+    public static void encryptFiles(File rootFile, LastModifiedRecord record) throws IOException {
 
         for(File file:rootFile.listFiles()){
             if (file.exists()){
                 File encryptionFile = new File(Util.getEncryptionFilePath(file.getPath()));
                 if(file.isDirectory()) {
                     encryptionFile.mkdirs();
-                    encrypt(file, record);
+                    encryptFiles(file, record);
                 } else if(record.isLocalModified(file)) {
                     long size = file.length();
                     FileInputStream in = new FileInputStream(file.getPath());

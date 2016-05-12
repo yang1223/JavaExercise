@@ -6,7 +6,7 @@ import java.io.IOException;
 /**
  * Created by Yang, Chi-Chang on 2016/5/10.
  */
-public class Decrypt {
+public class decrypt {
 
     static String encryption = Util.encryption;
 
@@ -14,9 +14,9 @@ public class Decrypt {
         try {
             LastModifiedRecord record = new LastModifiedRecord();
             File eFile = new File(encryption);
-            decrypt(eFile, record);
-            record.write();
+            decryptFiles(eFile, record);
             record.decryptDelete();
+            record.write();
         } catch (IOException e) {
             System.out.println("===== ERROR =====");
             System.out.println(e.getMessage());
@@ -25,14 +25,14 @@ public class Decrypt {
         }
     }
 
-    public static void decrypt(File rootFile, LastModifiedRecord record) throws IOException {
+    public static void decryptFiles(File rootFile, LastModifiedRecord record) throws IOException {
 
         for(File file:rootFile.listFiles()) {
             if ( Util.couldDecrypt(file) && file.exists()) {
                 File originalFile = new File(Util.getOriginalFilePath(file.getPath()));
                 if (file.isDirectory()) {
                     originalFile.mkdirs();
-                    decrypt(file, record);
+                    decryptFiles(file, record);
                 } else if (record.isShareModified(file)) {
                     long size = file.length();
                     FileInputStream in = new FileInputStream(file.getPath());

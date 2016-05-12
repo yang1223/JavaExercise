@@ -1,6 +1,4 @@
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -9,20 +7,11 @@ import java.io.IOException;
 public class Test {
 
     public static void main(String[] args) throws IOException {
-        File file = new File("original/P3_JayLee.pdf");
 
-        System.out.println(file.length());
-        long l = file.length();
-        FileInputStream in = new FileInputStream(file.getPath());
-        int count = 0;
-        int read;
-        while ((read = in.read()) != -1 ) {
-            count++;
-            if (count % 400000 == 0) {
-                System.out.println(String.format("%.0f",count*100.0/l) + "%");
-            }
-        }
-        System.out.println(count);
+        LastModifiedRecord record = new LastModifiedRecord();
+        File file = new File(".encrypted/test.txt");
+        System.out.println(record.isShareModified(file));
+
 
     }
 
