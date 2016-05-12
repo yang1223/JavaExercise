@@ -8,44 +8,54 @@ import java.io.IOException;
  */
 public class Decrypt {
 
-    static String original = Util.original;
     static String encryption = Util.encryption;
 
-    public static void main(String[] args) throws IOException {
-
-        LastModifiedRecord record = new LastModifiedRecord();
-
-        File file = new File(original);
-        if(file.mkdirs()) System.out.println("Create original folder!");;
-
-        File eFile = new File(encryption);
-        decrypt(eFile, record);
-        record.write();
+    public static void main(String[] args) {
+        try {
+            LastModifiedRecord record = new LastModifiedRecord();
+            File eFile = new File(encryption);
+            decrypt(eFile, record);
+            record.write();
+            record.decryptDelete();
+        } catch (IOException e) {
+            System.out.println("===== ERROR =====");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            System.out.println("===== ERROR =====");
+        }
     }
 
     public static void decrypt(File rootFile, LastModifiedRecord record) throws IOException {
 
-        for(File file:rootFile.listFiles())
-            if (file.exists()) {
-
+        for(File file:rootFile.listFiles()) {
+            if ( Util.couldDecrypt(file) && file.exists()) {
                 File originalFile = new File(Util.getOriginalFilePath(file.getPath()));
-
                 if (file.isDirectory()) {
                     originalFile.mkdirs();
                     decrypt(file, record);
-                } else if (record.isLocalModified(file)) { // TODO: record.isLocalModified(file)
+                } else if (record.isShareModified(file)) {
+                    long size = file.length();
                     FileInputStream in = new FileInputStream(file.getPath());
                     FileOutputStream out = new FileOutputStream(originalFile.getPath());
+                    boolean isEncrypted = record.isEncrypted(file);
+                    int shift = isEncrypted? 1:0;
+                    String action = isEncrypted? "decrypted\t":"copy\t\t";
+                    long count = 0;
                     int read;
                     while ((read = in.read()) != -1) {
-                        out.write(read + 1);
+                        out.write(read - shift);
+                        count++;
+                        if (count % 400000 == 0) {
+                            String percent = String.format("%3.0f",count*100.0/size) + "%";
+                            System.out.println(action + file.getPath() + "\t\t......" + percent);
+                        }
                     }
                     in.close();
                     out.close();
-                    record.update(file.getPath(), originalFile.getPath());
-                    System.out.println("encrypted " + file.getPath());
+                    record.update(originalFile.getPath() , file.getPath());
+                    System.out.println(action + file.getPath() + "\t\t......100%");
                 }
             }
+        }
     }
-
 }
