@@ -36,21 +36,24 @@ public class encrypt {
                     FileOutputStream out = new FileOutputStream(encryptionFile.getPath());
                     boolean isEncrypted = record.isEncrypted(file);
                     int shift = isEncrypted? 1:0;
-                    String action = isEncrypted? "encrypted\t":"copy\t\t";
+                    String action = isEncrypted? "encrypted":"copy";
+                    action = String.format("%-12s",action);
                     long count = 0;
                     int read;
+                    String filename = String.format("%-50s",file.getPath());
                     while ( (read = in.read()) != -1 ) {
                         out.write(read + shift);
                         count++;
-                        if (count % 400000 == 0) {
+                        if (count % 20000 == 0) {
                             String percent = String.format("%3.0f",count*100.0/size) + "%";
-                            System.out.println(action + file.getPath() + "\t\t......" + percent);
+                            System.out.print("\r" + action + filename + "\t......" + percent);
                         }
                     }
                     in.close();
                     out.close();
                     record.update(file.getPath(), encryptionFile.getPath());
-                    System.out.println(action + file.getPath() + "\t\t......100%");
+                    System.out.print("\r" + action + filename + "\t......100%");
+                    System.out.println("");
                 }
             }
         }
